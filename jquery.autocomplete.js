@@ -55,6 +55,8 @@
     });
 
     $.Autocompleter = function(input, options) {
+        // jqXHR - object returned by $.ajax()
+        var xhr;
 
         var KEY = {
             UP: 38,
@@ -363,11 +365,12 @@
                     extraParams[key] = typeof param == "function" ? param() : param;
                 });
 
-                $.ajax({
-                    // try to leverage ajaxQueue plugin to abort previous requests
-                    mode: "abort",
-                    // limit abortion to this input
-                    port: "autocomplete" + input.name,
+                // abort previous running request
+                if (typeof xhr != 'undefined' && xhr.state() == 'pending') {
+                    xhr.abort();
+                }
+
+                xhr = $.ajax({
                     dataType: options.dataType,
                     url: options.url,
                     data: $.extend({
